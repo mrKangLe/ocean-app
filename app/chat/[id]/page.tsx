@@ -64,12 +64,18 @@ export default function UserChatDetailPage() {
           table: "messages",
           filter: `conversation_id=eq.${conversationId}`,
         },
-        (payload) => {
+        async (payload) => {
           if (!isMounted) return;
           if (payload.eventType === "INSERT") {
-            setMessages((prev) => [...prev, payload.new]);
+            setMessages((prev) => {
+              // Tránh trùng lặp tin nhắn nếu tự mình vừa gửi
+              if (prev.some((msg) => msg.id === payload.new.id)) return prev;
+              return [...prev, payload.new];
+            });
+
+            // Nếu tin nhắn đến từ người khác, tự động đánh dấu là đã đọc ngay lập tức
             if (payload.new.sender_id !== myUserId) {
-              supabase
+              await supabase
                 .from("messages")
                 .update({ is_read: true })
                 .eq("id", payload.new.id);
@@ -99,6 +105,7 @@ export default function UserChatDetailPage() {
     setShowEmojiPicker(false);
     setShowImageMenu(false);
 
+    // Gửi tin nhắn trực tiếp lên Supabase (Realtime sẽ tự động bắt sự kiện và đẩy vào màn hình)
     await supabase.from("messages").insert([
       {
         conversation_id: conversationId,
@@ -296,7 +303,6 @@ export default function UserChatDetailPage() {
         onSubmit={handleSendMessage}
         className="fixed bottom-[53px] max-w-md w-full bg-white p-2.5 border-t border-slate-200 flex items-center space-x-2 z-20 shadow-md"
       >
-        {/* Nút Máy Ảnh mơ Menu Lựa Chọn */}
         <button
           type="button"
           onClick={() => {
@@ -308,7 +314,6 @@ export default function UserChatDetailPage() {
           {uploading ? <span className="text-xs animate-spin">⏳</span> : <span>📷</span>}
         </button>
 
-        {/* INPUT 1: BẮT BUỘC CHỤP ẢNH TỪ CAMERA */}
         <input
           ref={cameraInputRef}
           type="file"
@@ -319,7 +324,6 @@ export default function UserChatDetailPage() {
           className="hidden"
         />
 
-        {/* INPUT 2: MỞ THƯ VIỆN / FILE CÓ SẴN TRONG MÁY */}
         <input
           ref={fileInputRef}
           type="file"
