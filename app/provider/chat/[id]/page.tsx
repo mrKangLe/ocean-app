@@ -64,12 +64,16 @@ export default function ProviderChatDetailPage() {
           table: "messages",
           filter: `conversation_id=eq.${conversationId}`,
         },
-        (payload) => {
+        async (payload) => {
           if (!isMounted) return;
           if (payload.eventType === "INSERT") {
-            setMessages((prev) => [...prev, payload.new]);
+            setMessages((prev) => {
+              if (prev.some((msg) => msg.id === payload.new.id)) return prev;
+              return [...prev, payload.new];
+            });
+
             if (payload.new.sender_id !== myUserId) {
-              supabase
+              await supabase
                 .from("messages")
                 .update({ is_read: true })
                 .eq("id", payload.new.id);
