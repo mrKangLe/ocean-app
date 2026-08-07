@@ -13,6 +13,10 @@ export default function HomePage() {
   const [showInstallBtn, setShowInstallBtn] = useState(false);
 
   useEffect(() => {
+    // Kiểm tra xem khách đã từng bấm đóng hoặc cài chưa
+    const dismissed = localStorage.getItem("install_dismissed");
+    if (dismissed) return;
+
     // Lắng nghe sự kiện trình duyệt cho phép cài PWA
     const handler = (e: any) => {
       e.preventDefault();
@@ -24,12 +28,18 @@ export default function HomePage() {
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
+  const handleDismiss = () => {
+    setShowInstallBtn(false);
+    localStorage.setItem("install_dismissed", "true"); // Ghi nhớ để không hiện lại
+  };
+
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === "accepted") {
+    if (outcome === "accepted" || outcome === "dismissed") {
       setShowInstallBtn(false);
+      localStorage.setItem("install_dismissed", "true");
     }
     setDeferredPrompt(null);
   };
@@ -43,16 +53,23 @@ export default function HomePage() {
       <Block6AiAssistant />
       <Block5BottomNav />
 
-      {/* BANNER TỰ ĐỘNG HIỆN ĐỂ CÀI APP */}
+      {/* BANNER TỰ ĐỘNG HIỆN ĐỂ CÀI APP (THÔNG MINH & LỊCH SỰ) */}
       {showInstallBtn && (
-        <div className="fixed bottom-20 left-4 right-4 z-50 bg-orange-600 text-white p-3 rounded-2xl shadow-xl flex items-center justify-between animate-in slide-in-from-bottom-10 duration-500">
-          <div>
+        <div className="fixed bottom-20 left-4 right-4 z-50 bg-orange-600 text-white p-3 rounded-2xl shadow-xl flex items-center justify-between animate-in slide-in-from-bottom-10 duration-500 relative">
+          <button
+            onClick={handleDismiss}
+            className="absolute -top-2 -right-2 bg-slate-800 text-white w-6 h-6 rounded-full text-xs font-bold shadow-md flex items-center justify-center hover:bg-black transition"
+            title="Đóng"
+          >
+            ✕
+          </button>
+          <div className="mr-2">
             <p className="text-xs font-bold">Cài Ocean App ra màn hình chính?</p>
             <p className="text-[10px] opacity-90">Trải nghiệm như App chuyên nghiệp!</p>
           </div>
           <button
             onClick={handleInstallClick}
-            className="bg-white text-orange-600 font-bold text-xs px-3 py-1.5 rounded-xl shadow-xs active:scale-95 transition"
+            className="bg-white text-orange-600 font-bold text-xs px-3 py-1.5 rounded-xl shadow-xs active:scale-95 transition shrink-0"
           >
             Cài ngay
           </button>
