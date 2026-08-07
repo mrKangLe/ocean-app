@@ -9,16 +9,37 @@ import Block5BottomNav from "@/components/home/Block5BottomNav";
 import Block6AiAssistant from "@/components/home/Block6AiAssistant";
 
 export default function HomePage() {
-  const [showModal, setShowModal] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
-    // Chỉ hiện nếu chưa từng cài hoặc chưa từng tắt
-    const hasVisited = localStorage.getItem("ocean_app_visited");
-    if (!hasVisited) {
-      setShowModal(true);
-      localStorage.setItem("ocean_app_visited", "true");
-    }
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      // Lưu lại lệnh chờ để khi nào bấm nút là kích hoạt
+      setDeferredPrompt(e);
+      setShowButton(true);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    };
   }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) {
+      alert("Trình duyệt hiện chưa sẵn sàng cài đặt tự động. Bố vui lòng kiểm tra lại cấu hình PWA nhé!");
+      return;
+    }
+    // Gọi lệnh bật bảng xác nhận cài đặt của trình duyệt lên
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === "accepted") {
+      setShowButton(false);
+    }
+    setDeferredPrompt(null);
+  };
 
   return (
     <main className="max-w-md mx-auto bg-slate-50 min-h-screen pb-20 relative overflow-hidden">
@@ -29,27 +50,15 @@ export default function HomePage() {
       <Block6AiAssistant />
       <Block5BottomNav />
 
-      {/* MODAL CÀI ĐẶT SANG CHẢNH */}
-      {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white w-full max-w-sm rounded-3xl p-8 text-center shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="w-20 h-20 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <span className="text-4xl">🌊</span>
-            </div>
-            <h2 className="text-xl font-bold text-slate-800 mb-2">Chào mừng đến với Ocean</h2>
-            <p className="text-slate-500 text-sm mb-8 leading-relaxed">
-              Cài đặt ứng dụng để trải nghiệm mượt mà, tiện lợi và không còn thanh địa chỉ vướng víu.
-            </p>
-            <button 
-              onClick={() => setShowModal(false)}
-              className="w-full py-4 bg-orange-600 text-white rounded-2xl font-bold shadow-lg shadow-orange-200 active:scale-95 transition"
-            >
-              Trải nghiệm ngay
-            </button>
-            <p className="mt-4 text-[10px] text-slate-400 uppercase tracking-widest font-semibold">
-              Gợi ý: Bấm 3 chấm &gt; Thêm vào màn hình chính
-            </p>
-          </div>
+      {/* NÚT CÀI ĐẶT SANG CHẢNH - CHỈ HIỆN KHI TRÌNH DUYỆT CHO PHÉP */}
+      {showButton && (
+        <div className="fixed bottom-20 left-4 right-4 z-50">
+          <button
+            onClick={handleInstallClick}
+            className="w-full py-3.5 bg-orange-600 hover:bg-orange-700 text-white rounded-2xl font-bold shadow-xl shadow-orange-200 flex items-center justify-center gap-2 active:scale-95 transition"
+          >
+            <span>📥 Cài đặt ứng dụng lên màn hình</span>
+          </button>
         </div>
       )}
     </main>
