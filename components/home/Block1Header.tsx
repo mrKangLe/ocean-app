@@ -43,27 +43,27 @@ export default function Block1Header() {
 
   return (
     <>
-      {/* HEADER CHÍNH */}
-      <header className="bg-orange-500 p-3 flex items-center justify-between gap-2 shadow-md">
-        <span className="text-white font-bold text-lg tracking-wide">ocean.app</span>
+      {/* HEADER CHÍNH - THIẾT KẾ BỀ THẾ, ĐẦY ĐẶN HƠN */}
+      <header className="bg-orange-500 px-4 py-3.5 flex items-center justify-between gap-3 shadow-md">
+        <span className="text-white font-black text-lg tracking-wider shrink-0">ocean.app</span>
 
-        {/* Ô TÌM KIẾM */}
-        <div className="flex-1 max-w-[200px] bg-white/90 rounded-full px-3 py-1 text-xs text-gray-500 flex items-center gap-1">
-          <span>🔍</span>
+        {/* Ô TÌM KIẾM MỞ RỘNG LINH HOẠT */}
+        <div className="flex-1 bg-white/95 rounded-full px-3.5 py-1.5 text-xs text-gray-500 flex items-center gap-2 shadow-inner">
+          <span className="text-sm">🔍</span>
           <input
             type="text"
             placeholder="Bún chả, phở thìn, sửa điều hòa..."
-            className="bg-transparent outline-none w-full text-xs text-gray-700"
+            className="bg-transparent outline-none w-full text-xs text-gray-800 placeholder:text-gray-400 font-medium"
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5 shrink-0">
           {/* NÚT CHUÔNG THÔNG BÁO */}
           <button
             onClick={() => setIsOpen(true)}
-            className="relative p-1.5 bg-white/20 hover:bg-white/30 rounded-full transition"
+            className="relative p-2 bg-white/20 hover:bg-white/30 rounded-full transition active:scale-95"
           >
-            <span className="text-lg">🔔</span>
+            <span className="text-base block">🔔</span>
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full border border-orange-500">
                 {unreadCount}
@@ -72,16 +72,15 @@ export default function Block1Header() {
           </button>
 
           {/* VỊ TRÍ CƯ DÂN */}
-          <span className="bg-orange-600 text-white text-[11px] px-2 py-1 rounded-full font-semibold">
+          <span className="bg-orange-600 border border-orange-400/40 text-white text-[11px] px-2.5 py-1 rounded-full font-bold shadow-xs">
             👤 S2.06 VIP
           </span>
         </div>
       </header>
 
-      {/* CỬA SỔ TRƯỢT FULL 100% MÀN HÌNH */}
+      {/* CỬA SỔ TRƯỢT THÔNG BÁO */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
-          {/* Lớp nền mờ phía sau */}
           <div
             className="fixed inset-0 bg-black/40 transition-opacity"
             onClick={() => {
@@ -90,9 +89,7 @@ export default function Block1Header() {
             }}
           ></div>
 
-          {/* Cửa sổ trượt FULL W-FULL */}
           <div className="relative w-full bg-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-300">
-            {/* Header Drawer */}
             <div className="bg-orange-500 text-white p-4 flex items-center justify-between shadow-sm">
               <h3 className="font-bold text-base flex items-center gap-2">
                 🔔 Thông báo hệ thống
@@ -108,10 +105,8 @@ export default function Block1Header() {
               </button>
             </div>
 
-            {/* Nội dung thông báo */}
             <div className="flex-1 overflow-y-auto p-4">
               {selectedNotif ? (
-                /* CHI TIẾT NỘI DUNG THÔNG BÁO */
                 <div className="space-y-4 max-w-lg mx-auto">
                   <button
                     onClick={() => setSelectedNotif(null)}
@@ -128,7 +123,6 @@ export default function Block1Header() {
                   </p>
                 </div>
               ) : (
-                /* DANH SÁCH THÔNG BÁO */
                 <div className="space-y-3 max-w-lg mx-auto">
                   {notifications.map((item) => (
                     <div

@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Block5BottomNav from "@/components/home/Block5BottomNav";
 
-export default function ProviderChatDetailPage() {
+export default function UserChatDetailPage() {
   const router = useRouter();
   const params = useParams();
   const conversationId = (params?.id as string) || "d0eebc99-9c0b-4ef8-bb6d-6bb9bd380a99";
@@ -14,14 +14,14 @@ export default function ProviderChatDetailPage() {
   const [textInput, setTextInput] = useState("");
   const [uploading, setUploading] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showImageMenu, setShowImageMenu] = useState(false); // Menu 📸/🖼️
+  const [showImageMenu, setShowImageMenu] = useState(false);
   const [activeReactionMenu, setActiveReactionMenu] = useState<string | null>(null);
 
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const myUserId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a22"; // ID Thợ Tuấn
+  const myUserId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"; // ID Cư Dân
 
   const commonEmojis = ["😀", "😁", "😂", "🥰", "👍", "🙏", "🔥", "🎉"];
   const reactionList = ["👍", "❤️", "😂", "😮", "😡"];
@@ -54,7 +54,7 @@ export default function ProviderChatDetailPage() {
 
     fetchMessages();
 
-    const channel = supabase.channel(`chat_provider_room_${conversationId}`);
+    const channel = supabase.channel(`chat_user_room_${conversationId}`);
     channel
       .on(
         "postgres_changes",
@@ -159,18 +159,20 @@ export default function ProviderChatDetailPage() {
 
   return (
     <div className="max-w-md mx-auto bg-slate-50 h-screen flex flex-col justify-between shadow-2xl relative overflow-hidden">
-      {/* HEADER CỐ ĐỊNH TẠI ĐỈNH */}
+      {/* HEADER TREO CỐ ĐỊNH TẠI ĐỈNH */}
       <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center space-x-3 z-20 shadow-xs shrink-0">
         <button
-          onClick={() => router.push("/provider/chat")}
-          className="text-slate-500 hover:text-slate-800 font-bold text-base p-1 transition"
-          title="Về danh sách khách hàng"
+          onClick={() => router.push("/chat")}
+          className="text-slate-500 hover:text-slate-800 font-bold text-base p-1"
+          title="Về danh sách tin nhắn"
         >
           ✕
         </button>
         <div>
-          <h2 className="text-xs font-bold text-slate-800">Khách Cư Dân (Căn S2.05)</h2>
-          <p className="text-[10px] text-blue-500 font-medium">● Khách hàng trực tuyến</p>
+          <h2 className="text-xs font-bold text-slate-800">
+            {conversationId.includes("88") ? "Quán Cà Phê Muối S2.05" : "Thợ Tuấn (Sửa Điện Nước)"}
+          </h2>
+          <p className="text-[10px] text-emerald-500 font-medium">● Đang hoạt động</p>
         </div>
       </div>
 
@@ -191,7 +193,7 @@ export default function ProviderChatDetailPage() {
           return (
             <div key={msg.id} className={`flex flex-col ${isMe ? "items-end" : "items-start"} group relative`}>
               <span className="text-[10px] text-slate-400 mb-1 px-1">
-                {isMe ? "Bạn (Thợ Tuấn)" : "Khách Cư Dân"}
+                {isMe ? "Bạn (Cư Dân)" : "Đối tác"}
               </span>
 
               <div className="relative max-w-[80%]">
@@ -199,7 +201,7 @@ export default function ProviderChatDetailPage() {
                   onClick={() => setActiveReactionMenu(activeReactionMenu === msg.id ? null : msg.id)}
                   className={`rounded-2xl p-3 text-xs cursor-pointer select-none ${
                     isMe
-                      ? "bg-blue-600 text-white rounded-br-none shadow-xs"
+                      ? "bg-orange-500 text-white rounded-br-none shadow-xs"
                       : "bg-white text-slate-800 border border-slate-200 rounded-bl-none shadow-xs"
                   }`}
                 >
@@ -255,13 +257,13 @@ export default function ProviderChatDetailPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* POPUP CHỌN ẢNH */}
+      {/* POPUP CHỌN CHỤP ẢNH / THƯ VIỆN */}
       {showImageMenu && (
         <div className="fixed bottom-[105px] left-4 bg-white border border-slate-200 rounded-2xl shadow-xl p-1.5 flex flex-col space-y-1 z-30 animate-in fade-in slide-in-from-bottom-2 duration-150">
           <button
             type="button"
             onClick={() => cameraInputRef.current?.click()}
-            className="flex items-center space-x-2 px-3 py-2 text-xs text-slate-700 hover:bg-blue-50 rounded-xl transition font-medium"
+            className="flex items-center space-x-2 px-3 py-2 text-xs text-slate-700 hover:bg-orange-50 rounded-xl transition font-medium"
           >
             <span>📸</span>
             <span>Chụp ảnh trực tiếp</span>
@@ -269,10 +271,10 @@ export default function ProviderChatDetailPage() {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center space-x-2 px-3 py-2 text-xs text-slate-700 hover:bg-blue-50 rounded-xl transition font-medium"
+            className="flex items-center space-x-2 px-3 py-2 text-xs text-slate-700 hover:bg-orange-50 rounded-xl transition font-medium"
           >
             <span>🖼️</span>
-            <span>Chọn từ thư viện</span>
+            <span>Chọn từ thư viện / máy</span>
           </button>
         </div>
       )}
@@ -293,23 +295,38 @@ export default function ProviderChatDetailPage() {
         </div>
       )}
 
-      {/* KHUNG NHẬP */}
+      {/* KHUNG NHẬP TIN NHẮN - CÂN ĐỐI, GỌN GÀNG, SANG TRỌNG */}
       <form
         onSubmit={handleSendMessage}
-        className="fixed bottom-[53px] max-w-md w-full bg-white p-2.5 border-t border-slate-200 flex items-center space-x-2 z-20 shadow-md"
+        className="fixed bottom-[53px] max-w-md w-full bg-white px-3 py-2.5 border-t border-slate-200 flex items-center space-x-2 z-20 shadow-md"
       >
-        <button
-          type="button"
-          onClick={() => {
-            setShowImageMenu(!showImageMenu);
-            setShowEmojiPicker(false);
-          }}
-          className="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-full transition text-lg"
-        >
-          {uploading ? <span className="text-xs animate-spin">⏳</span> : <span>📷</span>}
-        </button>
+        {/* CỤM ICON BÊN TRÁI ĐƯỢC GOM GỌN */}
+        <div className="flex items-center space-x-0.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              setShowImageMenu(!showImageMenu);
+              setShowEmojiPicker(false);
+            }}
+            className="p-1.5 text-slate-500 hover:text-orange-500 hover:bg-slate-100 rounded-full transition text-base"
+            title="Đính kèm ảnh"
+          >
+            {uploading ? <span className="text-xs animate-spin">⏳</span> : <span>📷</span>}
+          </button>
 
-        {/* INPUT CAMERA */}
+          <button
+            type="button"
+            onClick={() => {
+              setShowEmojiPicker(!showEmojiPicker);
+              setShowImageMenu(false);
+            }}
+            className="p-1.5 text-slate-500 hover:text-orange-500 hover:bg-slate-100 rounded-full transition text-base"
+            title="Chọn biểu tượng cảm xúc"
+          >
+            😀
+          </button>
+        </div>
+
         <input
           ref={cameraInputRef}
           type="file"
@@ -319,7 +336,7 @@ export default function ProviderChatDetailPage() {
           disabled={uploading}
           className="hidden"
         />
-        {/* INPUT THƯ VIỆN */}
+
         <input
           ref={fileInputRef}
           type="file"
@@ -329,30 +346,20 @@ export default function ProviderChatDetailPage() {
           className="hidden"
         />
 
-        <button
-          type="button"
-          onClick={() => {
-            setShowEmojiPicker(!showEmojiPicker);
-            setShowImageMenu(false);
-          }}
-          className="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-full transition text-lg"
-        >
-          😀
-        </button>
-
+        {/* Ô NHẬP VĂN BẢN CHIẾM TRỌN KHÔNG GIAN CÂN ĐỐI */}
         <input
           type="text"
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
-          placeholder="Thợ Tuấn nhập tin nhắn..."
-          className="flex-1 bg-slate-100 border-none rounded-xl px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-600"
+          placeholder="Cư dân nhập tin nhắn..."
+          className="flex-1 bg-slate-100 border-none rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-800 placeholder:text-slate-400"
         />
 
         <button
           type="submit"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs transition"
+          className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-xs transition shrink-0 active:scale-95"
         >
-          Trả lời
+          Gửi
         </button>
       </form>
 
